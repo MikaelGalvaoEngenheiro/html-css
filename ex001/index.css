@@ -43,10 +43,15 @@ h1{
     color: blueviolet;
 }
 
-footer img{
+footer img {
     width: 40px;
     height: 40px;
-
+    /* Adiciona a borda roxa idêntica à do header */
+    border: 2px solid blueviolet; 
+    /* Deixa a borda redondinha acompanhando o ícone */
+    border-radius: 50%;           
+    /* Garante que o fundo preto do ícone não vaze */
+    object-fit: cover;            
 }
 
 footer {
