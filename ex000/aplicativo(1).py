@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify, render_template_string
 import pickle
-import pandas as pd
+import numpy as np
+import os
 
 app = Flask(__name__)
 
 # ==========================================
 # CARREGAR MODELO DIRETAMENTE
 # ==========================================
-# Como seu arquivo .pkl contém apenas o KNN, lemos diretamente na variável
 with open('modelo_knn.pkl', 'rb') as f:
     modelo = pickle.load(f)
 
@@ -102,22 +102,29 @@ function prever(){
 </html>
 """
 
+
 @app.route('/')
 def home():
     return render_template_string(HTML, variaveis=DICIONARIO_VARIAVEIS, colunas=COLUNAS)
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         dados_lista = request.json['dados']
-        dados_df = pd.DataFrame([dados_lista], columns=COLUNAS)
-        
-        # Predição direta do KNN
-        pred = modelo.predict(dados_df)[0]
-        
+
+        # Convertemos para array do numpy e remodelamos para o formato que o KNN espera (1 linha, 30 colunas)
+        dados_np = np.array(dados_lista).reshape(1, -1)
+
+        # Predição direta usando a matriz numérica
+        pred = modelo.predict(dados_np)[0]
+
         return jsonify({'resultado': int(pred)})
     except Exception as e:
         return jsonify({'erro': str(e)})
 
+
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    # O Render exige que o app use a porta definida por eles na variável de ambiente PORT
+    porta = int(os.environ.get("PORT", 8080))
+    app.run(debug=True, host='0.0.0.0', port=porta)
